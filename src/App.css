@@ -1,0 +1,244 @@
+/* 전역 리셋/배경 */
+html, body, #root { height: 100%; }
+html, body { margin: 0; background: #000; }
+
+/* 커서 */
+html, body, * { cursor: var(--app-cursor, auto) !important; }
+a, button { cursor: var(--app-cursor-link, var(--app-cursor, auto)) !important; }
+
+/* Deluna 임베드 */
+@font-face {
+  font-family: 'Deluna';
+  src: url('/fonts/Deluna.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* GNB */
+.gnb-logo { position: fixed; z-index: 1000; }
+.gnb {
+  position: fixed; z-index: 1000;
+  display: flex; align-items: center;
+  color: #b6afafff; font-weight: 400; user-select: none;
+}
+.gnb-item {
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity 160ms ease, color 160ms ease;
+  color: inherit; /* ✅ 부모 색상 물려받기 */
+}
+/* ✅ 호버 시 글자색 변경 (#161617) */
+.gnb-item:hover {
+  opacity: 1;
+  color: #161617 !important;
+}
+/* ✅ 키보드 포커스 접근성 (선택 사항) */
+.gnb-item:focus-visible {
+  outline: 2px solid #161617;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 레이아웃 */
+.page { background: #000; }
+.sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; width: 100%; z-index: 1; }
+.track { position: absolute; inset: 0; will-change: transform; }
+
+/* 비디오/패널 */
+.video-wrap {
+  position: absolute;
+  top: 0;
+  background: #cacacaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100vh;
+}
+.video-inner {
+  position: relative;
+  width: 100%;          /* 고정 1920px → 래퍼 기준 100% */
+  aspect-ratio: 16 / 9; /* 1920×1080 비율 유지 */
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.625vw; /* 12px → 0.625vw */
+  background: #000;
+}
+.panel-phys {
+  position: relative;
+  width: 100%;          /* 시각적 컨테이너는 100% */
+  height: 100%;         /* 실제 캔버스는 JS에서 3840×1080(px)로 렌더 */
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 0.625vw; /* 12px → 0.625vw */
+  background: #000;
+}
+
+.bg-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; user-select: none; pointer-events: none; z-index: 0;
+}
+
+.caption {
+  position: absolute;
+  right: 0;
+  font-family: 'Hakgyoansim Monggeulmonggeul', sans-serif;
+  color: transparent;
+  letter-spacing: 0.1042vw; /* 2px → 0.1042vw */
+  text-transform: uppercase;
+  line-height: 1.1;
+  z-index: 3;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  user-select: none;
+  transition: transform 140ms ease, opacity 140ms ease;
+  opacity: 0.96;
+}
+.caption:hover { transform: translateY(-0.3704vh); } /* 4px → 0.3704vh */
+
+.play-area {
+  position: absolute;
+  box-sizing: content-box;
+  background: transparent;
+  z-index: 1;
+}
+.play-content { position: relative; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+.matter-mount { position: absolute; inset: 0; pointer-events: none; background: transparent; z-index: 1; }
+.sprite { z-index: 2; }
+
+/* ====== Preloader (로딩 오버레이) ====== */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  color: #ffffff;
+  display: none; /* JS에서 토글 */
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: opacity 250ms ease;
+}
+.preloader-inner { width: min(27.0833vw, 80vw); text-align: center; }     /* 520px → 27.0833vw */
+.preloader-title {
+  font-family: "Deluna", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.4583vw;              /* 28px → 1.4583vw */
+  letter-spacing: 0.1042vw;         /* 2px → 0.1042vw */
+  margin-bottom: 0.9375vw;          /* 18px → 0.9375vw */
+}
+.preloader-bar { width: 100%; height: 0.4167vw; background: #222; border-radius: 999px; overflow: hidden; } /* 8px → 0.4167vw */
+.preloader-bar-fill { height: 100%; background: #ff4242; width: 0%; transform-origin: left center; transition: width 120ms linear; }
+.preloader-sub { margin-top: 0.5208vw; font-size: 0.625vw; opacity: 0.8; letter-spacing: 0.0521vw; } /* 10px/12px/1px */
+
+/* ===== WebApp Overlay (web5-2 임베드) ===== */
+.webapp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0,0,0,0.66);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.webapp-frame-wrap {
+  position: relative;
+  width: min(96vw, 1920px);
+  height: min(92vh, 1080px);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  background: #000;
+}
+
+.webapp-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #000;
+}
+
+.webapp-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 28px;
+  line-height: 40px;
+  text-align: center;
+  cursor: var(--app-cursor-link, pointer);
+  transition: transform 120ms ease, background 120ms ease;
+}
+.webapp-close:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.16);
+}
+
+
+/* ====== Preloader (로딩 오버레이) ====== */
+/* 기본적으로 렌더되지만 보이지 않게 -> 클래스 토글로 페이드 인/아웃 */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  /* 처음엔 숨김 상태, opacity/visibility로 전환 */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 420ms ease, visibility 0s linear 420ms;
+}
+
+.preloader.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 420ms ease, visibility 0s; /* 즉시 표시 */
+}
+
+.preloader-inner { width: min(27.0833vw, 80vw); text-align: center; }     /* 520px → 27.0833vw */
+.preloader-title {
+  font-family: "Deluna", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.4583vw;              /* 28px → 1.4583vw */
+  letter-spacing: 0.1042vw;         /* 2px → 0.1042vw */
+  margin-bottom: 0.9375vw;          /* 18px → 0.9375vw */
+}
+.preloader-bar {
+  width: 100%;
+  height: 0.4167vw;                 /* 8px → 0.4167vw */
+  background: #222;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.preloader-bar-fill {
+  height: 100%;
+  background: #ff4242;
+  width: 0%;
+  transform-origin: left center;
+  transition: width 220ms linear;   /* 막대 자체도 살짝 부드럽게 */
+}
+.preloader-sub {
+  margin-top: 0.5208vw;             /* 10px → 0.5208vw */
+  font-size: 0.625vw;               /* 12px → 0.625vw */
+  opacity: 0.86;
+  letter-spacing: 0.0521vw;         /* 1px → 0.0521vw */
+}
