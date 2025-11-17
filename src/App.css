@@ -9,7 +9,7 @@ a, button { cursor: var(--app-cursor-link, var(--app-cursor, auto)) !important; 
 /* Deluna 임베드 */
 @font-face {
   font-family: 'Deluna';
-  src: url('/fonts/Deluna.otf') format('opentype');
+  src: url('/WEB5/fonts/Deluna.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

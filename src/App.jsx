@@ -99,7 +99,7 @@ export default function App() {
   // ===== 폰트/커서 (기존 유지)
   useEffect(() => {
     try {
-      const font = new FontFace("Deluna", `url("/fonts/Deluna.otf") format("opentype")`);
+      const font = new FontFace("Deluna", `url("/WEB5/fonts/Deluna.otf") format("opentype")`);
       font.load().then((loaded) => { document.fonts.add(loaded); }).catch(() => {});
     } catch {}
   }, []);
