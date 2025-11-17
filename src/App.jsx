@@ -24,13 +24,13 @@ import { clamp, easeOutCubic, easeInOutCubic } from "./utils/math.js";
 
 // ✅ About 이미지 (src/assets에 둘 때 권장)
 //    파일명이 소문자라면 반드시 경로도 소문자로!
-import aboutImg from "./assets/about.png"; 
+import aboutImg from "./assets/about.png";
 // 만약 public/assets에 두었다면 위 import 대신 아래 한 줄을 쓰세요:
 // const aboutImg = "/assets/about.png";
 
 export default function App() {
   const stickyRef = useRef(null);
-  const imgRef    = useRef(null);
+  const imgRef = useRef(null);
 
   // ===== web5-2 오버레이 =====
   const [showWebApp, setShowWebApp] = useState(false);
@@ -63,7 +63,7 @@ export default function App() {
         img.src = src;
       });
 
-    const waitFonts = (async () => { try { await document.fonts.ready; } catch {} })();
+    const waitFonts = (async () => { try { await document.fonts.ready; } catch { } })();
     const waitVideo = new Promise((resolve) => {
       try {
         const v = document.createElement("video");
@@ -99,9 +99,12 @@ export default function App() {
   // ===== 폰트/커서 (기존 유지)
   useEffect(() => {
     try {
-      const font = new FontFace("Deluna", `url("/WEB5/fonts/Deluna.otf") format("opentype")`);
-      font.load().then((loaded) => { document.fonts.add(loaded); }).catch(() => {});
-    } catch {}
+      const font = new FontFace(
+        "Deluna",
+        `url("${import.meta.env.BASE_URL}fonts/Deluna.otf") format("opentype")`
+      );
+      font.load().then((loaded) => { document.fonts.add(loaded); }).catch(() => { });
+    } catch { }
   }, []);
   useEffect(() => {
     const id = "font-rubik-spray-paint";
@@ -152,7 +155,7 @@ export default function App() {
           document.documentElement.style.setProperty("--app-cursor", cursorVal);
           document.documentElement.style.setProperty("--app-cursor-link", cursorVal);
           break;
-        } catch {}
+        } catch { }
       }
     })();
   }, []);
@@ -202,14 +205,14 @@ export default function App() {
   const isProgrammaticRef = useRef(false);
 
   useEffect(() => {
-    maxScrollRef.current    = Math.max(0, pageHeight - vh);
+    maxScrollRef.current = Math.max(0, pageHeight - vh);
     targetScrollRef.current = clamp(window.scrollY, 0, maxScrollRef.current);
   }, [pageHeight, vh]);
 
   const tickSmooth = () => {
-    const cur    = window.scrollY;
+    const cur = window.scrollY;
     const target = targetScrollRef.current;
-    const diff   = target - cur;
+    const diff = target - cur;
     if (Math.abs(diff) < STOP_EPS) {
       isProgrammaticRef.current = false;
       if (animIdRef.current) { cancelAnimationFrame(animIdRef.current); animIdRef.current = null; }
@@ -222,10 +225,10 @@ export default function App() {
 
   const swipeAnimRef = useRef(null);
   const swipeTo = (yTarget) => {
-    const maxY  = maxScrollRef.current;
-    const end   = clamp(yTarget, 0, maxY);
+    const maxY = maxScrollRef.current;
+    const end = clamp(yTarget, 0, maxY);
     const start = window.scrollY || 0;
-    const dist  = Math.abs(end - start);
+    const dist = Math.abs(end - start);
     if (dist < STOP_EPS) return;
 
     let dur = dist / MENU_SWIPE_PX_PER_MS;
@@ -295,19 +298,19 @@ export default function App() {
   }, []);
 
   // ▼ 물리(기존) ··· (생략 없이 그대로 유지)
-  const physPanelRef    = useRef(null);
-  const panelRef        = useRef(null);
-  const matterMountRef  = useRef(null);
-  const bodiesRef       = useRef([]);
+  const physPanelRef = useRef(null);
+  const panelRef = useRef(null);
+  const matterMountRef = useRef(null);
+  const bodiesRef = useRef([]);
 
-  const FORCE_BASE  = 0.00015;
+  const FORCE_BASE = 0.00015;
   const FORCE_SCALE = 0.0000050;
-  const FORCE_MAX   = 0.0065;
-  const X_FACTOR    = 0.60;
-  const X_RANDOM    = 0.20;
-  const BOOST_VY    = -2.6;
+  const FORCE_MAX = 0.0065;
+  const X_FACTOR = 0.60;
+  const X_RANDOM = 0.20;
+  const BOOST_VY = -2.6;
   const TORQUE_KICK = 0.028;
-  const TORQUE_MAX  = 1.6;
+  const TORQUE_MAX = 1.6;
 
   const kick = (dx = 0, dy = 0) => {
     const mag = Math.hypot(dx, dy);
@@ -351,9 +354,9 @@ export default function App() {
     render.canvas.style.opacity = "0";
 
     const walls = [
-      Bodies.rectangle(PLAY_X - WALL_LEFT / 2,  PLAY_Y + PLAY_H / 2, WALL_LEFT,  PLAY_H, { isStatic: true }),
+      Bodies.rectangle(PLAY_X - WALL_LEFT / 2, PLAY_Y + PLAY_H / 2, WALL_LEFT, PLAY_H, { isStatic: true }),
       Bodies.rectangle(PLAY_X + PLAY_W + WALL_RIGHT / 2, PLAY_Y + PLAY_H / 2, WALL_RIGHT, PLAY_H, { isStatic: true }),
-      Bodies.rectangle(PLAY_X + PLAY_W / 2, PLAY_Y - WALL_TOP / 2,  PLAY_W, WALL_TOP, { isStatic: true }),
+      Bodies.rectangle(PLAY_X + PLAY_W / 2, PLAY_Y - WALL_TOP / 2, PLAY_W, WALL_TOP, { isStatic: true }),
       Bodies.rectangle(PLAY_X + PLAY_W / 2, (PLAY_Y + PLAY_H - FLOOR_RAISE) + WALL_BOTTOM / 2, PLAY_W, WALL_BOTTOM, { isStatic: true }),
     ];
     walls.forEach(w => (w.render.visible = false));
@@ -368,11 +371,11 @@ export default function App() {
     ];
 
     const sprites = [
-      { src: "/WEB5/images/01-2.png", x: PLAY_X + 340,  y: 120,  w: 170, h: 170 },
-      { src: "/WEB5/images/02-2.png", x: PLAY_X + 720,  y: 160,  w: 170, h: 170 },
-      { src: "/WEB5/images/03.png",   x: PLAY_X + 1120, y:  90,  w: 170, h: 170 },
-      { src: "/WEB5/images/04.png",   x: PLAY_X + 1460, y: 130,  w: 170, h: 170 },
-      { src: "/WEB5/images/05-2.png", x: PLAY_X + 980,  y:  80,  w: 170, h: 170 },
+      { src: "/WEB5/images/01-2.png", x: PLAY_X + 340, y: 120, w: 170, h: 170 },
+      { src: "/WEB5/images/02-2.png", x: PLAY_X + 720, y: 160, w: 170, h: 170 },
+      { src: "/WEB5/images/03.png", x: PLAY_X + 1120, y: 90, w: 170, h: 170 },
+      { src: "/WEB5/images/04.png", x: PLAY_X + 1460, y: 130, w: 170, h: 170 },
+      { src: "/WEB5/images/05-2.png", x: PLAY_X + 980, y: 80, w: 170, h: 170 },
     ];
 
     const bodies = [];
@@ -397,14 +400,14 @@ export default function App() {
         phaseY: Math.random() * Math.PI * 2,
         freqX: 0.0008 + Math.random() * 0.0004,
         freqY: 0.0007 + Math.random() * 0.0004,
-        ampX:  0.00020 + Math.random() * 0.00012,
-        ampY:  0.00014 + Math.random() * 0.00012,
-        buoy:  0.00010 + Math.random() * 0.00005,
+        ampX: 0.00020 + Math.random() * 0.00012,
+        ampY: 0.00014 + Math.random() * 0.00012,
+        buoy: 0.00010 + Math.random() * 0.00005,
         torque: 0.00008 + Math.random() * 0.00006,
         g: w.g,
         gustPhase: Math.random() * Math.PI * 2,
-        gustFreq:  0.002 + Math.random() * 0.002,
-        gustAmp:   0.00020 + Math.random() * 0.00025
+        gustFreq: 0.002 + Math.random() * 0.002,
+        gustAmp: 0.00020 + Math.random() * 0.00025
       };
 
       Matter.World.add(engine.world, body);
@@ -413,7 +416,7 @@ export default function App() {
       const img = document.createElement("img");
       img.src = s.src;
       img.className = "sprite";
-      img.style.width  = `${s.w}px`;
+      img.style.width = `${s.w}px`;
       img.style.height = `${s.h}px`;
       img.style.transform = `translate(${s.x - s.w / 2}px, ${s.y - s.h / 2}px)`;
       panel.appendChild(img);
@@ -573,7 +576,7 @@ export default function App() {
     if (typeof show === "number") return show;
     if (typeof show === "string") {
       const s = show.trim().toLowerCase();
-      if (s.endsWith("%"))  return (parseFloat(s) / 100) * maxScroll;
+      if (s.endsWith("%")) return (parseFloat(s) / 100) * maxScroll;
       if (s.endsWith("vh")) return vhToPx(s);
       if (s.endsWith("vw")) return vwToPx(s);
       const n = Number(s);
@@ -582,10 +585,10 @@ export default function App() {
     return 0;
   };
 
-  const capLeft  = CAPTION_MARGIN_LEFT;
-  const capTop   = CAPTION_MARGIN_TOP;
-  const capBot   = CAPTION_MARGIN_BOTTOM;
-  const capFont  = CAPTION_FONT_SIZE;
+  const capLeft = CAPTION_MARGIN_LEFT;
+  const capTop = CAPTION_MARGIN_TOP;
+  const capBot = CAPTION_MARGIN_BOTTOM;
+  const capFont = CAPTION_FONT_SIZE;
 
   return (
     <>
@@ -647,7 +650,7 @@ export default function App() {
           {OVERLAYS.map((o, i) => {
             const showPx = resolveShowToPx(o.show);
             const visible = scrollY >= showPx;
-            const after   = Math.max(0, scrollY - showPx);
+            const after = Math.max(0, scrollY - showPx);
 
             const leftPx = typeof o.left === "string" && o.left.endsWith("vw")
               ? (parseFloat(o.left) / 100) * vw
@@ -658,7 +661,7 @@ export default function App() {
             const w = overlayRefs[i]?.current ? overlayRefs[i].current.clientWidth : overlayWidths[i] || vw;
             const offX = leftPx + w + 24;
 
-            const tx   = -Math.min(offX, after * OVERLAY_SPEED);
+            const tx = -Math.min(offX, after * OVERLAY_SPEED);
             const prog = clamp(after / APPEAR_RANGE, 0, 1);
             const scale = START_SCALE + (1 - START_SCALE) * easeOutCubic(prog);
 
