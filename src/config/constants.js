@@ -87,6 +87,5 @@ export const MENU_SCROLL_TARGETS = {
 };
 
 // ===== WEB5-2 링크 =====
-export const WEB5_2_URL = import.meta.env.DEV
-  ? "http://localhost:5174/"
-  : "/WEB5-2/";
+export const WEB5_2_URL = "https://kj77kj7.github.io/web5-2/";
+
