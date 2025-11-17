@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 // 레포 이름이 my-project 라고 가정
 export default defineConfig({
-  base: '/web5/',
+  base: '/WEB5/',
   plugins: [react()],
 })
