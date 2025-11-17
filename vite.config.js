@@ -1,7 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
+// 레포 이름이 my-project 라고 가정
 export default defineConfig({
+  base: '/web5/',
   plugins: [react()],
-  base: "/web5/", // ⚠️ 레포 이름 정확히 넣기!!
-});
+})
