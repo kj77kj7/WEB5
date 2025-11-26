@@ -26,11 +26,14 @@ import { clamp, easeOutCubic, easeInOutCubic } from "./utils/math.js";
 // ✅ About 이미지
 import aboutImg from "./assets/about.png";
 
+// ✅ [추가됨] 패널 사이의 여백 (검정 공백) 크기 설정
+const PANEL_GAP = 400; 
+
 export default function App() {
   const stickyRef = useRef(null);
   const imgRef = useRef(null);
   
-  // ✅ [비디오 제어용 ref 추가]
+  // ✅ 비디오 제어용 ref
   const videoRef = useRef(null);
 
   // ===== web5-2 오버레이 =====
@@ -196,7 +199,10 @@ export default function App() {
     const { nw, nh } = imgMeta;
     if (!nw || !nh) return { trackWidthPx: 0, maxX: 0, pageHeight: vh };
     const imgWidthPx = (nw / nh) * vh;
-    const totalTrack = imgWidthPx + BG0_PANEL_WIDTH + EXTRA_VIDEO_PANEL_WIDTH + EXTRA_BG_PANEL_WIDTH;
+    
+    // ✅ [수정됨] 전체 트랙 길이에 PANEL_GAP(여백)을 추가하여 계산
+    const totalTrack = imgWidthPx + BG0_PANEL_WIDTH + EXTRA_VIDEO_PANEL_WIDTH + PANEL_GAP + EXTRA_BG_PANEL_WIDTH;
+    
     const mx = Math.max(0, totalTrack - vw);
     return { trackWidthPx: imgWidthPx, maxX: mx, pageHeight: mx + vh };
   }, [imgMeta, vh, vw]);
@@ -299,8 +305,7 @@ export default function App() {
     return () => window.removeEventListener("wheel", onWheel);
   }, []);
 
-  // ✅ [추가됨] 비디오 Intersection Observer 로직
-  // 화면에 50% 이상 보이면 처음부터 자동재생, 사라지면 정지
+  // ✅ 비디오 Intersection Observer 로직 (보이면 소리 켜고 재생, 안 보이면 정지)
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
@@ -309,18 +314,20 @@ export default function App() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // 화면에 50% 이상 들어왔을 때:
-            videoElement.currentTime = 0; // 1. 처음 위치로 이동
-            videoElement.play().catch((err) => { // 2. 재생
-              console.log("자동 재생 실패(브라우저 정책 등):", err);
+            // 화면에 50% 이상 들어왔을 때
+            videoElement.currentTime = 0; 
+            // 💡 muted 제거됨: 소리 켜고 재생 시도
+            videoElement.play().catch((err) => {
+              // 브라우저 정책으로 소리 켠 자동 재생이 막힐 경우 에러가 발생할 수 있음
+              console.log("자동 재생 실패 (브라우저 정책 등):", err);
             });
           } else {
-            // 화면에서 나갔을 때:
-            videoElement.pause(); // 3. 정지
+            // 화면에서 나갔을 때
+            videoElement.pause();
           }
         });
       },
-      { threshold: 0.5 } // 패널이 50% 이상 보일 때 트리거
+      { threshold: 0.5 }
     );
 
     observer.observe(videoElement);
@@ -592,7 +599,19 @@ export default function App() {
       return;
     }
 
-    // 기존 스크롤 이동
+    // ✅ [수정됨] Animation 메뉴: 정확히 비디오 패널 시작 위치로 이동
+    if (label === "Animation") {
+      if (activeTimerRef.current) { clearTimeout(activeTimerRef.current); activeTimerRef.current = null; }
+      
+      // 파노라마 너비 + 배경0 패널 너비 = 비디오 패널 시작 지점
+      const y = trackWidthPx + BG0_PANEL_WIDTH; 
+      swipeTo(y);
+      
+      activeTimerRef.current = setTimeout(() => { setActiveMenu(null); activeTimerRef.current = null; }, 900);
+      return;
+    }
+
+    // 기존 스크롤 이동 (그 외 메뉴)
     if (activeTimerRef.current) { clearTimeout(activeTimerRef.current); activeTimerRef.current = null; }
     const y = MENU_SCROLL_TARGETS[label] ?? 0;
     swipeTo(y);
@@ -649,19 +668,31 @@ export default function App() {
             {/* 1) 비디오 패널 */}
             <div className="video-wrap" style={{ left: `${trackWidthPx + BG0_PANEL_WIDTH}px`, width: `${EXTRA_VIDEO_PANEL_WIDTH}px` }}>
               <div className="video-inner">
-                {/* ✅ [비디오 엘리먼트 속성 및 ref 연결] */}
+                {/* ✅ [수정됨] 비디오 스타일 (90% 크기) & muted 제거 (소리 출력) */}
                 <video 
                   ref={videoRef}
                   src={VIDEO_SRC} 
-                  muted 
                   playsInline
-                  style={{ width: "100%", height: "100%", objectFit: "contain", outline: "none", display: "block" }} 
+                  style={{ 
+                    width: "90%",    // 100% -> 90% (여백 생성)
+                    height: "90%",   // 100% -> 90% (여백 생성)
+                    objectFit: "contain", 
+                    outline: "none", 
+                    display: "block" 
+                  }} 
                 />
               </div>
             </div>
 
-            {/* 2) PNG+물리 패널 */}
-            <div style={{ position: "absolute", top: 0, left: `${trackWidthPx + BG0_PANEL_WIDTH + EXTRA_VIDEO_PANEL_WIDTH}px`, width: `${EXTRA_BG_PANEL_WIDTH}px`, height: "100vh" }}>
+            {/* 2) PNG+물리 패널 (Test 메뉴 위치) */}
+            {/* ✅ [수정됨] PANEL_GAP 추가하여 우측으로 밀어냄 */}
+            <div style={{ 
+              position: "absolute", 
+              top: 0, 
+              left: `${trackWidthPx + BG0_PANEL_WIDTH + EXTRA_VIDEO_PANEL_WIDTH + PANEL_GAP}px`, 
+              width: `${EXTRA_BG_PANEL_WIDTH}px`, 
+              height: "100vh" 
+            }}>
               <div ref={physPanelRef} className="panel-phys">
                 <img src={BG_IMG_SRC} alt="bg-panel" className="bg-img" />
 
