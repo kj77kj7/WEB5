@@ -44,7 +44,7 @@ export const EXTRA_VIDEO_PANEL_WIDTH = 1920;
 export const EXTRA_BG_PANEL_WIDTH    = 3840;
 
 // ===== 비디오·배경 이미지 =====
-export const VIDEO_SRC  = "/WEB5/videos/sample.mp4";
+export const VIDEO_SRC  = "/WEB5/videos/web5_animation.mp4";
 export const BG_IMG_SRC = "/WEB5/images/배경1.png";
 
 export const BG0_IMG_SRC     = "/WEB5/images/배경0.png";

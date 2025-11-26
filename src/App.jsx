@@ -5,8 +5,7 @@ import "./App.css";
 import GNB from "./components/GNB.jsx";
 import Preloader from "./components/Preloader.jsx";
 import WebAppOverlay from "./components/WebAppOverlay.jsx";
-import ImageOverlay from "./components/ImageOverlay.jsx"; // ✅ 추가
-import AnimationOverlay from "./components/AnimationOverlay.jsx";
+import ImageOverlay from "./components/ImageOverlay.jsx"; 
 
 
 import {
@@ -24,24 +23,21 @@ import {
 
 import { clamp, easeOutCubic, easeInOutCubic } from "./utils/math.js";
 
-// ✅ About 이미지 (src/assets에 둘 때 권장)
-//    파일명이 소문자라면 반드시 경로도 소문자로!
+// ✅ About 이미지
 import aboutImg from "./assets/about.png";
-// 만약 public/assets에 두었다면 위 import 대신 아래 한 줄을 쓰세요:
-// const aboutImg = "/assets/about.png";
 
 export default function App() {
   const stickyRef = useRef(null);
   const imgRef = useRef(null);
+  
+  // ✅ [비디오 제어용 ref 추가]
+  const videoRef = useRef(null);
 
   // ===== web5-2 오버레이 =====
   const [showWebApp, setShowWebApp] = useState(false);
 
   // ✅ About 이미지 오버레이
   const [showAbout, setShowAbout] = useState(false);
-
-  // Animation 영상 오버레이
-  const [showAnimation, setShowAnimation] = useState(false);
 
 
   // 오버레이 열리면 바디 스크롤 잠금
@@ -301,6 +297,37 @@ export default function App() {
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // ✅ [추가됨] 비디오 Intersection Observer 로직
+  // 화면에 50% 이상 보이면 처음부터 자동재생, 사라지면 정지
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // 화면에 50% 이상 들어왔을 때:
+            videoElement.currentTime = 0; // 1. 처음 위치로 이동
+            videoElement.play().catch((err) => { // 2. 재생
+              console.log("자동 재생 실패(브라우저 정책 등):", err);
+            });
+          } else {
+            // 화면에서 나갔을 때:
+            videoElement.pause(); // 3. 정지
+          }
+        });
+      },
+      { threshold: 0.5 } // 패널이 50% 이상 보일 때 트리거
+    );
+
+    observer.observe(videoElement);
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // ▼ 물리(기존) ··· (생략 없이 그대로 유지)
@@ -565,23 +592,6 @@ export default function App() {
       return;
     }
 
-    // Animation 오버레이
-    if (label === "Animation") {
-      if (activeTimerRef.current) {
-        clearTimeout(activeTimerRef.current);
-        activeTimerRef.current = null;
-      }
-
-      setShowAnimation(true); // 오버레이 ON
-
-      activeTimerRef.current = setTimeout(() => {
-        setActiveMenu(null);
-        activeTimerRef.current = null;
-      }, 900);
-
-      return;
-    }
-
     // 기존 스크롤 이동
     if (activeTimerRef.current) { clearTimeout(activeTimerRef.current); activeTimerRef.current = null; }
     const y = MENU_SCROLL_TARGETS[label] ?? 0;
@@ -639,7 +649,14 @@ export default function App() {
             {/* 1) 비디오 패널 */}
             <div className="video-wrap" style={{ left: `${trackWidthPx + BG0_PANEL_WIDTH}px`, width: `${EXTRA_VIDEO_PANEL_WIDTH}px` }}>
               <div className="video-inner">
-                <video src={VIDEO_SRC} style={{ width: "100%", height: "100%", objectFit: "contain", outline: "none", display: "block" }} />
+                {/* ✅ [비디오 엘리먼트 속성 및 ref 연결] */}
+                <video 
+                  ref={videoRef}
+                  src={VIDEO_SRC} 
+                  muted 
+                  playsInline
+                  style={{ width: "100%", height: "100%", objectFit: "contain", outline: "none", display: "block" }} 
+                />
               </div>
             </div>
 
@@ -726,13 +743,6 @@ export default function App() {
         onClose={() => setShowAbout(false)}
         src={aboutImg}
         alt="About"
-      />
-
-      {/* Animation 오버레이 */}
-      <AnimationOverlay
-        open={showAnimation}
-        onClose={() => setShowAnimation(false)}
-        videoSrc="/videos/web5_animation.mp4"  // 여기에 네 동영상 경로
       />
 
     </>
