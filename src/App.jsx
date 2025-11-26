@@ -6,6 +6,8 @@ import GNB from "./components/GNB.jsx";
 import Preloader from "./components/Preloader.jsx";
 import WebAppOverlay from "./components/WebAppOverlay.jsx";
 import ImageOverlay from "./components/ImageOverlay.jsx"; // ✅ 추가
+import AnimationOverlay from "./components/AnimationOverlay.jsx";
+
 
 import {
   IMAGE_SRC, OVERLAYS, OVERLAY_SPEED, SCROLL_STEP, EASE_FACTOR, STOP_EPS,
@@ -37,6 +39,10 @@ export default function App() {
 
   // ✅ About 이미지 오버레이
   const [showAbout, setShowAbout] = useState(false);
+
+  // Animation 영상 오버레이
+  const [showAnimation, setShowAnimation] = useState(false);
+
 
   // 오버레이 열리면 바디 스크롤 잠금
   useEffect(() => {
@@ -559,6 +565,23 @@ export default function App() {
       return;
     }
 
+    // Animation 오버레이
+    if (label === "Animation") {
+      if (activeTimerRef.current) {
+        clearTimeout(activeTimerRef.current);
+        activeTimerRef.current = null;
+      }
+
+      setShowAnimation(true); // 오버레이 ON
+
+      activeTimerRef.current = setTimeout(() => {
+        setActiveMenu(null);
+        activeTimerRef.current = null;
+      }, 900);
+
+      return;
+    }
+
     // 기존 스크롤 이동
     if (activeTimerRef.current) { clearTimeout(activeTimerRef.current); activeTimerRef.current = null; }
     const y = MENU_SCROLL_TARGETS[label] ?? 0;
@@ -704,6 +727,14 @@ export default function App() {
         src={aboutImg}
         alt="About"
       />
+
+      {/* Animation 오버레이 */}
+      <AnimationOverlay
+        open={showAnimation}
+        onClose={() => setShowAnimation(false)}
+        videoSrc="/videos/web5_animation.mp4"  // 여기에 네 동영상 경로
+      />
+
     </>
   );
 }
